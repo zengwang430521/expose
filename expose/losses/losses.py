@@ -377,3 +377,5 @@ class KeypointEdgeLoss(nn.Module):
             else:
                 raise NotImplementedError(
                     f'Loss type not implemented: {self.loss_type}')
+
+

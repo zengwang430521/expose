@@ -13,7 +13,7 @@
 # for Intelligent Systems. All rights reserved.
 #
 # Contact: ps-license@tuebingen.mpg.de
-
+import numpy as np
 from typing import NewType, List, Tuple, Union
 import sys
 import os.path as osp
@@ -120,10 +120,12 @@ def make_body_dataset(name, dataset_cfg, transforms,
                       num_betas=10,
                       num_expression_coeffs=10,
                       **kwargs):
+    sample_weight = 1.0
     if name == 'ehf':
         obj = datasets.EHF
     elif name == 'curated_fits':
         obj = datasets.CuratedFittings
+        sample_weight = 1.0
     elif name == 'threedpw':
         obj = datasets.ThreeDPW
     elif name == 'spin':
@@ -150,6 +152,8 @@ def make_body_dataset(name, dataset_cfg, transforms,
                    **args)
 
     logger.info('Created dataset: {}', dset_obj.name())
+
+    dset_obj.sample_weight = sample_weight / len(dset_obj) * np.ones(len(dset_obj))
     return dset_obj
 
 
@@ -285,14 +289,18 @@ def make_all_data_loaders(exp_cfg, split='train', start_iter=0, **kwargs):
 
     body_transfs_cfg = body_dsets_cfg.get('transforms', {})
     body_transforms = build_transforms(body_transfs_cfg, is_train=is_train)
+    # print('debug!!!!!')
+    # body_transforms = build_transforms(body_transfs_cfg, is_train=False)
 
     hand_dsets_cfg = dataset_cfg.get('hand', {})
     hand_dset_names = hand_dsets_cfg.get('splits', {})[split]
+    if hand_dset_names is None: hand_dset_names = []
     hand_transfs_cfg = hand_dsets_cfg.get('transforms', {})
     hand_transforms = build_transforms(hand_transfs_cfg, is_train=is_train)
 
     head_dsets_cfg = dataset_cfg.get('head', {})
     head_dset_names = head_dsets_cfg.get('splits', {})[split]
+    if head_dset_names is None: head_dset_names = []
     head_transfs_cfg = head_dsets_cfg.get('transforms', {})
     head_transforms = build_transforms(head_transfs_cfg, is_train=is_train)
 
@@ -432,4 +440,63 @@ def make_all_data_loaders(exp_cfg, split='train', start_iter=0, **kwargs):
         'body': body_data_loaders,
         'hand': hand_data_loaders,
         'head': head_data_loaders,
+    }
+
+
+def make_all_datasets(exp_cfg, split='train', start_iter=0, **kwargs):
+    is_train = 'train' in split
+    num_betas = exp_cfg.body_model.num_betas
+    num_expression_coeffs = exp_cfg.body_model.num_expression_coeffs
+
+    dataset_cfg = exp_cfg.get('datasets', {})
+
+    body_dsets_cfg = dataset_cfg.get('body', {})
+    body_dset_names = body_dsets_cfg.get('splits', {})[split]
+
+    body_transfs_cfg = body_dsets_cfg.get('transforms', {})
+    body_transforms = build_transforms(body_transfs_cfg, is_train=is_train)
+
+    hand_dsets_cfg = dataset_cfg.get('hand', {})
+    hand_dset_names = hand_dsets_cfg.get('splits', {})[split]
+    if hand_dset_names is None: hand_dset_names = []
+    hand_transfs_cfg = hand_dsets_cfg.get('transforms', {})
+    hand_transforms = build_transforms(hand_transfs_cfg, is_train=is_train)
+
+    head_dsets_cfg = dataset_cfg.get('head', {})
+    head_dset_names = head_dsets_cfg.get('splits', {})[split]
+    if head_dset_names is None: head_dset_names = []
+    head_transfs_cfg = head_dsets_cfg.get('transforms', {})
+    head_transforms = build_transforms(head_transfs_cfg, is_train=is_train)
+
+    body_datasets = []
+    for dataset_name in body_dset_names:
+        dset = make_body_dataset(dataset_name, body_dsets_cfg,
+                                 transforms=body_transforms,
+                                 num_betas=num_betas,
+                                 num_expression_coeffs=num_expression_coeffs,
+                                 is_train=is_train, split=split, **kwargs)
+        body_datasets.append(dset)
+
+    hand_datasets = []
+    for dataset_name in hand_dset_names:
+        dset = make_hand_dataset(dataset_name, hand_dsets_cfg,
+                                 transforms=hand_transforms,
+                                 num_betas=num_betas,
+                                 num_expression_coeffs=num_expression_coeffs,
+                                 is_train=is_train, split=split, **kwargs)
+        hand_datasets.append(dset)
+
+    head_datasets = []
+    for dataset_name in head_dset_names:
+        dset = make_head_dataset(dataset_name, head_dsets_cfg,
+                                 transforms=head_transforms,
+                                 num_betas=num_betas,
+                                 num_expression_coeffs=num_expression_coeffs,
+                                 is_train=is_train, split=split, **kwargs)
+        head_datasets.append(dset)
+
+    return {
+        'body': body_datasets,
+        'hand': hand_datasets,
+        'head': head_datasets,
     }

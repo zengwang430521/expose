@@ -73,5 +73,5 @@ class SMPLXNet(nn.Module):
                             head_imgs=head_imgs, head_targets=head_targets,
                             full_imgs=full_imgs)
 
-        output['losses'] = losses
+        # output['losses'] = losses
         return output

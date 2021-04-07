@@ -97,7 +97,9 @@ class CropSampler(nn.Module):
         x = torch.arange(0, crop_size, dtype=torch.float32) / (crop_size - 1)
         grid_y, grid_x = torch.meshgrid(x, x)
 
-        points = torch.stack([grid_y.flatten(), grid_x.flatten()], axis=1)
+        # points = torch.stack([grid_y.flatten(), grid_x.flatten()], axis=1)
+        points = torch.stack([grid_y.flatten(), grid_x.flatten()], dim=1)
+
 
         self.register_buffer('grid', points.unsqueeze(dim=0))
 

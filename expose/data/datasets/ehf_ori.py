@@ -38,13 +38,6 @@ from ..utils.bbox import keyps_to_bbox, bbox_to_center_scale
 from ..utils import read_keypoints
 from ...utils.img_utils import read_img
 from loguru import logger
-import glob
-import json
-from ..utils.objfile import read_obj
-from plyfile import PlyData
-
-import numpy as np
-import pandas as pd
 
 
 class EHF(dutils.Dataset):
@@ -81,13 +74,13 @@ class EHF(dutils.Dataset):
         self.use_joint_conf = use_joint_conf
 
         #  keypoint_fname = osp.join(self.data_folder, 'gt_keyps.npy')
-        # keypoint_fname = osp.join(self.data_folder, 'gt_keyps.npz')
-        # keypoint_data = np.load(keypoint_fname)
-        # self.keypoints = keypoint_data['gt_keypoints_2d']
-        # self.keypoints3d = keypoint_data['gt_keypoints_3d']
-        # self.joints14 = keypoint_data['gt_joints14']
-        # if not use_face_contour:
-        #     self.keypoints = self.keypoints[:, :-17]
+        keypoint_fname = osp.join(self.data_folder, 'gt_keyps.npz')
+        keypoint_data = np.load(keypoint_fname)
+        self.keypoints = keypoint_data['gt_keypoints_2d']
+        self.keypoints3d = keypoint_data['gt_keypoints_3d']
+        self.joints14 = keypoint_data['gt_joints14']
+        if not use_face_contour:
+            self.keypoints = self.keypoints[:, :-17]
 
         self.is_train = 'train' in split
         self.split = split
@@ -100,12 +93,12 @@ class EHF(dutils.Dataset):
         self.face_thresh = face_thresh
         self.binarization = binarization
 
-        # annot_fn = osp.join(self.data_folder, 'annotations.yaml')
-        # with open(annot_fn, 'r') as annot_file:
-        #     annotations = yaml.load(annot_file)
-        # self.annotations = annotations
-        # self.annotations = (self.annotations['train'] +
-        #                     self.annotations['test'])
+        annot_fn = osp.join(self.data_folder, 'annotations.yaml')
+        with open(annot_fn, 'r') as annot_file:
+            annotations = yaml.load(annot_file)
+        self.annotations = annotations
+        self.annotations = (self.annotations['train'] +
+                            self.annotations['test'])
 
         self.transforms = transforms
 
@@ -113,15 +106,8 @@ class EHF(dutils.Dataset):
         self.num_expr_coeffs = num_expr_coeffs
         self.use_face_contour = use_face_contour
 
-        # self.img_fns = sorted(
-        #     os.listdir(osp.join(self.data_folder, self.img_folder)))
-
-        # self.img_fns = sorted(os.listdir(self.data_folder))
-
-        paths = glob.glob(os.path.join(self.data_folder, '*.jpg'))
-        paths.sort()
-        self.img_fns = paths
-
+        self.img_fns = sorted(
+            os.listdir(osp.join(self.data_folder, self.img_folder)))
         #  source_idxs, target_idxs = dset_to_body_model(
             #  dset='openpose25+hands+face',
             #  model_type='smplx', use_hands=True, use_face=True,
@@ -165,50 +151,31 @@ class EHF(dutils.Dataset):
         return 1
 
     def __getitem__(self, index):
-        # fn = self.annotations[index]
-        # img_path = osp.join(self.data_folder, self.img_folder,
-        #                     fn + '.png')
-        img_path = self.img_fns[index]
+        fn = self.annotations[index]
+        img_path = osp.join(self.data_folder, self.img_folder,
+                            fn + '.png')
         img = read_img(img_path)
 
-        imgname = os.path.basename(img_path)
-
-        # _, fn = os.path.split(fn)
+        _, fn = os.path.split(fn)
 
         # TODO: Add 3D Keypoints
         #  keypoints2d = data_tuple['keypoints'].squeeze()
 
         # Copy keypoints from the GT data
-        jnt_file = imgname.replace('img.jpg', '2Djnt.json')
-
-        with open(os.path.join(self.data_folder, jnt_file), 'r') as load_f:
-            load_dict = json.load(load_f)
-            people_data = load_dict['people'][0]
-        keypoints2d = people_data['pose_keypoints_2d'] + \
-                      people_data['face_keypoints_2d'] + \
-                      people_data['hand_left_keypoints_2d'] + \
-                      people_data['hand_right_keypoints_2d']
-        keypoints2d = np.array(keypoints2d).astype(np.float).reshape([-1, 3])
-
-        output_keypoints2d = np.zeros([127 + 17 * self.use_face_contour, 3], dtype=np.float32)
-        output_keypoints2d[:137, :] = keypoints2d
-
-        # output_keypoints2d = np.zeros(
-        #     [127 + 17 * self.use_face_contour, 3], dtype=np.float32)
-        # output_keypoints2d[:, :-1] = self.keypoints[index].copy()
-        # output_keypoints2d[:, -1] = 1.0
-
+        output_keypoints2d = np.zeros(
+            [127 + 17 * self.use_face_contour, 3], dtype=np.float32)
+        output_keypoints2d[:, :-1] = self.keypoints[index].copy()
+        output_keypoints2d[:, -1] = 1.0
 
         output_keypoints3d = np.zeros(
             [127 + 17 * self.use_face_contour, 4], dtype=np.float32)
-        # output_keypoints3d[:, :-1] = self.keypoints3d[index].copy()
-        # output_keypoints3d[:, -1] = 1.0
+        output_keypoints3d[:, :-1] = self.keypoints3d[index].copy()
+        output_keypoints3d[:, -1] = 1.0
 
         is_right = self.is_right
         # Remove joints with negative confidence
         output_keypoints2d[output_keypoints2d[:, -1] < 0, -1] = 0
-        if False:
-        # if self.body_thresh > 0:
+        if self.body_thresh > 0:
             # Only keep the points with confidence above a threshold
             body_conf = output_keypoints2d[self.body_idxs, -1]
             face_conf = output_keypoints2d[self.face_idxs, -1]
@@ -290,33 +257,16 @@ class EHF(dutils.Dataset):
         target.add_field('orig_center', orig_center)
         target.add_field('orig_bbox_size', bbox_size)
 
-        # alignment_path = osp.join(self.data_folder, self.alignments_folder,
-        #                           fn.replace('.07_C', '') + '.pkl')
-        # with open(alignment_path, 'rb') as alignment_file:
-        #     alignment_data = pickle.load(alignment_file, encoding='latin1')
-        # vertices = alignment_data['v']
-
-        plyname = imgname.replace('img.jpg', 'align.ply')
-        plydata = PlyData.read(os.path.join(self.data_folder, plyname))
-
-        data = plydata.elements[0].data  # 读取数据
-        data_pd = pd.DataFrame(data)  # 转换成DataFrame, 因为DataFrame可以解析结构化的数据
-        data_np = np.zeros(data_pd.shape, dtype=np.float)  # 初始化储存数据的array
-        property_names = data[0].dtype.names  # 读取property的名字
-        for i, name in enumerate(property_names):  # 按property读取数据，这样可以保证读出的数据是同样的数据类型。
-            data_np[:, i] = data_pd[name]
-
-        vertices = data_np
-
-
-        # objname = imgname.replace('img.jpg', 'scan.obj')
-        # vert, face = read_obj(os.path.join(self.data_folder, objname))
-
+        alignment_path = osp.join(self.data_folder, self.alignments_folder,
+                                  fn.replace('.07_C', '') + '.pkl')
+        with open(alignment_path, 'rb') as alignment_file:
+            alignment_data = pickle.load(alignment_file, encoding='latin1')
         transl = np.array([-0.03609917, 0.43416458, 2.37101226])
         camera_pose = np.array([-2.9874789618512025, 0.011724572107320893,
                                 -0.05704686818955933])
         camera_pose = cv2.Rodrigues(camera_pose)[0]
 
+        vertices = alignment_data['v']
         cam_vertices = vertices.dot(camera_pose.T) + transl.reshape(1, 3)
 
         vertices_field = Vertices(cam_vertices)
@@ -328,9 +278,9 @@ class EHF(dutils.Dataset):
                                [0, 0, 1]], dtype=np.float32)
         target.add_field('intrinsics', intrinsics)
 
-        # joints3d = self.joints14[index]
-        # joints = Joints(joints3d[:14])
-        # target.add_field('joints14', joints)
+        joints3d = self.joints14[index]
+        joints = Joints(joints3d[:14])
+        target.add_field('joints14', joints)
 
         if self.transforms is not None:
             force_flip = False
@@ -339,6 +289,5 @@ class EHF(dutils.Dataset):
             img, cropped_image, target = self.transforms(
                 img, target, dset_scale_factor=1.2, force_flip=force_flip)
 
-        fn = imgname
         target.add_field('fname', fn)
         return img, cropped_image, target, index

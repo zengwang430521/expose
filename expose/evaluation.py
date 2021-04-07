@@ -65,11 +65,11 @@ class Evaluator(object):
         j14_regressor_path = exp_cfg.j14_regressor_path
         with open(j14_regressor_path, 'rb') as f:
             self.J14_regressor = pickle.load(f, encoding='latin1')
-        part_map_path = osp.expandvars(exp_cfg.part_map)
-        with open(part_map_path, 'rb') as f:
-            data = pickle.load(f)
-            self.num2part = data['num2part']
-            self.segm = data['segm']
+        # part_map_path = osp.expandvars(exp_cfg.part_map)
+        # with open(part_map_path, 'rb') as f:
+        #     data = pickle.load(f)
+        #     self.num2part = data['num2part']
+        #     self.segm = data['segm']
 
         smplx_valid_verts_fn = osp.expandvars(
             exp_cfg.get('smplx_valid_verts_fn', ''))
@@ -86,8 +86,8 @@ class Evaluator(object):
             self.smplx_valid_verts = np.asarray(
                 self.smplx_valid_verts, dtype=np.int64)
 
-        body_vertex_ids_path = osp.expandvars(
-            exp_cfg.get('body_vertex_ids_path', ''))
+        # body_vertex_ids_path = osp.expandvars(exp_cfg.get('body_vertex_ids_path', ''))
+        body_vertex_ids_path = 'data/body_vertex_ids.npy'
         body_vertex_ids = None
         if osp.exists(body_vertex_ids_path):
             body_vertex_ids = np.load(body_vertex_ids_path).astype(np.int32)
@@ -178,11 +178,16 @@ class Evaluator(object):
             'crop_size', 256)
         self.head_renderer = OverlayRenderer(img_size=head_crop_size)
 
-        self.render_gt_meshes = exp_cfg.get('render_gt_meshes', True)
+        self.render_gt_meshes = exp_cfg.get('render_gt_meshes', False)
         if self.render_gt_meshes:
             self.gt_body_renderer = GTRenderer(img_size=body_crop_size)
             self.gt_hand_renderer = GTRenderer(img_size=hand_crop_size)
             self.gt_head_renderer = GTRenderer(img_size=head_crop_size)
+        else:
+            self.gt_body_renderer = None
+            self.gt_hand_renderer = None
+            self.gt_head_renderer = None
+
 
     @torch.no_grad()
     def __enter__(self):
@@ -903,18 +908,18 @@ class Evaluator(object):
                                         pred_joints[bidx],
                                         gt_joints14[bidx])['point'])
 
-                if idx == 0:
-                    camera_parameters = body_output.get('camera_parameters')
-                    self.create_summaries(
-                        step, dset_name,
-                        body_imgs.detach().cpu().numpy(),
-                        body_targets,
-                        body_stage_n_out,
-                        camera_parameters=camera_parameters,
-                        renderer=self.body_renderer,
-                        gt_renderer=self.gt_body_renderer,
-                        degrees=self.body_degrees,
-                    )
+                # if idx == 0:
+                #     camera_parameters = body_output.get('camera_parameters')
+                #     self.create_summaries(
+                #         step, dset_name,
+                #         body_imgs.detach().cpu().numpy(),
+                #         body_targets,
+                #         body_stage_n_out,
+                #         camera_parameters=camera_parameters,
+                #         renderer=self.body_renderer,
+                #         gt_renderer=self.gt_body_renderer,
+                #         degrees=self.body_degrees,
+                #     )
 
             # Compute Body Mean per Joint point error
             if compute_body_mpjpe:

@@ -75,7 +75,7 @@ def collate_fn(batch):
 def preprocess_images(
     image_folder: str,
     exp_cfg,
-    num_workers: int = 8, batch_size: int = 1,
+    num_workers: int = 0, batch_size: int = 1,
     min_score: float = 0.5,
     scale_factor: float = 1.2,
     device: Optional[torch.device] = None

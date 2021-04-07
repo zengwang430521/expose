@@ -230,7 +230,10 @@ class CuratedFittings(dutils.Dataset):
                               'folder_{:010d}'.format(folder_idx),
                               '{:010d}.jpg'.format(file_idx))
         else:
-            img_fn = self.img_fns[index].decode('utf-8')
+            # img_fn = self.img_fns[index].decode('utf-8')
+            img_fn = osp.join(self.img_folder,
+                              self.img_fns[index].decode('utf-8'))
+
 
         #  start = time.perf_counter()
         img = read_img(img_fn)
@@ -378,6 +381,9 @@ class CuratedFittings(dutils.Dataset):
             dset_name = self.dset_name[index].decode('utf-8')
             vertex_fname = osp.join(
                 self.vertex_folder, f'{dset_name}_{index:06d}.npy')
+
+            target.add_field('vname', vertex_fname)
+
             vertices = np.load(vertex_fname)
             H, W, _ = img.shape
 

@@ -17,7 +17,13 @@
 import torch
 
 from .predictor import SMPLXHead
+from .my_predictor import SimpleSMPLXHead
 
 
 def build_attention_head(cfg):
-    return SMPLXHead(cfg)
+    # for DEBUG
+    model_type = cfg.get('model_type', 'exp')
+    if model_type == 'simple':
+        return SimpleSMPLXHead(cfg)
+    else:
+        return SMPLXHead(cfg)
