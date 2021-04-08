@@ -105,14 +105,14 @@ def main(exp_cfg):
             if not osp.exists(vname):
                 param = {}
                 param['body_pose'] = target.get_field('body_pose').body_pose
-                param['left_hand_pose'] = target.get_field('hand_pose').left_hand_pose
-                param['right_hand_pose'] = target.get_field('hand_pose').right_hand_pose
-                param['jaw_pose'] = target.get_field('jaw_pose').jaw_pose
-                param['betas'] = target.get_field('betas').betas
-                param['expression'] = target.get_field('expression').expression
-                param['global_orient'] = target.get_field('global_pose').global_pose
+                param['left_hand_pose'] = target.get_field('hand_pose').left_hand_pose if 'hand_pose' in target.extra_fields else None
+                param['right_hand_pose'] = target.get_field('hand_pose').right_hand_pose if 'hand_pose' in target.extra_fields else None
+                param['jaw_pose'] = target.get_field('jaw_pose').jaw_pose if 'jaw_pose' in target.extra_fields else None
+                param['betas'] = target.get_field('betas').betas if 'betas' in target.extra_fields else None
+                param['expression'] = target.get_field('expression').expression if 'expression' in target.extra_fields else None
+                param['global_orient'] = target.get_field('global_pose').global_pose if 'global_pose' in target.extra_fields else None
                 for key in param:
-                    param[key] = param[key].to(device).unsqueeze(0)
+                    param[key] = param[key].to(device).unsqueeze(0) if param[key] is not None else None
                 output = model.smplx.body_model(get_skin=True, return_shaped=True, **param)
                 vertice = output.vertices[0].cpu().numpy()
 

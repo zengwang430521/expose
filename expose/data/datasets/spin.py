@@ -267,19 +267,26 @@ class SPIN(dutils.Dataset):
             betas = self.betas[index]
             target.add_field('betas', Betas(betas))
         if self.return_vertices:
-            fname = osp.join(self.vertex_folder, f'{index:06d}.npy')
-            H, W, _ = img.shape
+            dset_name = dset
+            dset_index = self.indices[index]
+            vertex_fname = osp.join(
+                self.vertex_folder, f'{dset_name}_{dset_index:06d}.npy')
 
-            fscale = H / bbox_size
-            intrinsics = np.array([[5000 * fscale, 0, 0],
-                                   [0, 5000 * fscale, 0],
-                                   [0, 0, 1]], dtype=np.float32)
+            target.add_field('vname', vertex_fname)
 
-            target.add_field('intrinsics', intrinsics)
-            vertices = np.load(fname)
-            vertex_field = Vertices(
-                vertices, bc=self.bc, closest_faces=self.closest_faces)
-            target.add_field('vertices', vertex_field)
+            # fname = osp.join(self.vertex_folder, f'{index:06d}.npy')
+            # H, W, _ = img.shape
+            #
+            # fscale = H / bbox_size
+            # intrinsics = np.array([[5000 * fscale, 0, 0],
+            #                        [0, 5000 * fscale, 0],
+            #                        [0, 0, 1]], dtype=np.float32)
+            #
+            # target.add_field('intrinsics', intrinsics)
+            # vertices = np.load(vertex_fname)
+            # vertex_field = Vertices(
+            #     vertices, bc=self.bc, closest_faces=self.closest_faces)
+            # target.add_field('vertices', vertex_field)
 
         if self.transforms is not None:
             force_flip = False

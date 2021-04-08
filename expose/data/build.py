@@ -289,8 +289,7 @@ def make_all_data_loaders(exp_cfg, split='train', start_iter=0, **kwargs):
 
     body_transfs_cfg = body_dsets_cfg.get('transforms', {})
     body_transforms = build_transforms(body_transfs_cfg, is_train=is_train)
-    # print('debug!!!!!')
-    # body_transforms = build_transforms(body_transfs_cfg, is_train=False)
+    print('debug!!!!!'); body_transforms = build_transforms(body_transfs_cfg, is_train=False)
 
     hand_dsets_cfg = dataset_cfg.get('hand', {})
     hand_dset_names = hand_dsets_cfg.get('splits', {})[split]
