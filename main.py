@@ -1,5 +1,8 @@
 import os
 os.environ['PYOPENGL_PLATFORM'] = 'egl'
+import cv2
+cv2.setNumThreads(0)
+cv2.ocl.setUseOpenCL(False)
 import argparse
 import datetime
 import json
@@ -111,7 +114,7 @@ def main(args, exp_cfg):
     lr_scheduler = build_scheduler(optimizer, optim_cfg['scheduler'])
 
     if args.distributed:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=False)
+        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         model_without_ddp = model.module
 
     if args.pretrain:
