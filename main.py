@@ -101,9 +101,6 @@ def main(args, exp_cfg):
     #                              drop_last=False, collate_fn=utils.collate_fn, num_workers=args.num_workers,
     #                              pin_memory=True)
 
-    # for n, p in model_without_ddp.named_parameters():
-    #     print(n)
-
     optim_cfg = exp_cfg.get('optim', {})
     optimizer = build_optimizer(model, optim_cfg)
     lr_scheduler = build_scheduler(optimizer, optim_cfg['scheduler'])
