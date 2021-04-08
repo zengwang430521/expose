@@ -384,7 +384,7 @@ class CuratedFittings(dutils.Dataset):
 
             target.add_field('vname', vertex_fname)
 
-            vertices = np.load(vertex_fname)
+            vertices = np.load(vertex_fname, allow_pickle=True)
             H, W, _ = img.shape
 
             intrinsics = np.array([[5000, 0, 0.5 * W],
