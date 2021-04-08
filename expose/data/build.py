@@ -129,9 +129,11 @@ def make_body_dataset(name, dataset_cfg, transforms,
     elif name == 'threedpw':
         obj = datasets.ThreeDPW
     elif name == 'spin':
+        sample_weight = 2.0
         obj = datasets.SPIN
     elif name == 'spinx':
         obj = datasets.SPINX
+        sample_weight = 2.0
     elif name == 'lsp_test':
         obj = datasets.LSPTest
     elif name == 'openpose':
@@ -289,7 +291,7 @@ def make_all_data_loaders(exp_cfg, split='train', start_iter=0, **kwargs):
 
     body_transfs_cfg = body_dsets_cfg.get('transforms', {})
     body_transforms = build_transforms(body_transfs_cfg, is_train=is_train)
-    print('debug!!!!!'); body_transforms = build_transforms(body_transfs_cfg, is_train=False)
+    # print('debug!!!!!'); body_transforms = build_transforms(body_transfs_cfg, is_train=False)
 
     hand_dsets_cfg = dataset_cfg.get('hand', {})
     hand_dset_names = hand_dsets_cfg.get('splits', {})[split]
