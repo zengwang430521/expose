@@ -435,10 +435,10 @@ class SimpleSMPLXHead(nn.Module):
         body_parameters, body_deltas = self.regressor(body_features)
 
         losses = {}
-        # toy_loss = sum(f.sum() for f in feat_dict.values()) * 0.0 + \
-        #            sum(p.sum() for p in body_parameters) * 0.0 + \
-        #            sum(d.sum() for d in body_deltas) * 0.0
-        # losses['toy_loss'] = toy_loss
+        toy_loss = sum(f.sum() for f in feat_dict.values()) * 0.0 + \
+                   sum(p.sum() for p in body_parameters) * 0.0 + \
+                   sum(d.sum() for d in body_deltas) * 0.0
+        losses['toy_loss'] = toy_loss
 
         # A list of dicts for the parameters predicted at each stage. The key
         # is the name of the parameters and the value is the prediction of the
