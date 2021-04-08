@@ -16,8 +16,6 @@ def build_backbone(backbone_cfg):
     elif 'hrnet' in backbone_type:
         backbone = build_hr_net(
             backbone_cfg, pretrained=True)
-        print('remove unused stage4 from hrnet.')
-        backbone.stage4 = None
         return backbone, backbone.get_output_dim()
     elif 'resnet' in backbone_type:
         resnet_cfg = backbone_cfg.get('resnet')
