@@ -75,8 +75,11 @@ def main(args, exp_cfg):
     #     print(n)
     # dataset_train = build_dataset(image_set='train', args=args)
     # dataset_val = build_dataset(image_set='val', args=args)
+
+    print('start build dataset')
     datasets = make_all_datasets(exp_cfg, split='train')
     dataset_train = ConcatDataset(datasets['body'])
+    print('finish build dataset')
 
     sample_weight = [child_dataset.sample_weight for child_dataset in dataset_train.datasets]
     sample_weight = np.concatenate(sample_weight, axis=0)
