@@ -435,9 +435,9 @@ class SimpleSMPLXHead(nn.Module):
         body_parameters, body_deltas = self.regressor(body_features)
 
         losses = {}
-        toy_loss = sum(f.sum() for f in feat_dict.values()) * 0 + \
-                   sum(p.sum() for p in body_parameters) * 0 + \
-                   sum(d.sum() for d in body_deltas) * 0
+        toy_loss = sum(f.sum() for f in feat_dict.values()) * 0.0 + \
+                   sum(p.sum() for p in body_parameters) * 0.0 + \
+                   sum(d.sum() for d in body_deltas) * 0.0
         losses['toy_loss'] = toy_loss
 
         # A list of dicts for the parameters predicted at each stage. The key
@@ -537,7 +537,7 @@ class SimpleSMPLXHead(nn.Module):
 
             pred_dict = param_dicts[-1]
             pred_dict['proj_joints'] = proj_joints
-            losses = self.mix_loss(pred_dict, targets)
+            losses.update(self.mix_loss(pred_dict, targets))
 
             # # Create the tensor of ground-truth HD keypoints
             # gt_crop_keypoints = []
