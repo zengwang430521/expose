@@ -118,9 +118,9 @@ class SPIN(dutils.Dataset):
 
         folder_map_fname = osp.expandvars(
             osp.join(img_folder, FOLDER_MAP_FNAME))
-        with open(folder_map_fname, 'rb') as f:
-            data_dict = pickle.load(f)
-        self.items_per_folder = max(data_dict.values())
+        # with open(folder_map_fname, 'rb') as f:
+        #     data_dict = pickle.load(f)
+        # self.items_per_folder = max(data_dict.values())
 
         self.indices = np.concatenate(
             [self.spin_data[dset]['indices'] for dset in self.spin_data],
@@ -192,12 +192,15 @@ class SPIN(dutils.Dataset):
         return self.num_items
 
     def __getitem__(self, index):
-        folder_idx = index // self.items_per_folder
-        file_idx = index
+        # folder_idx = index // self.items_per_folder
+        # file_idx = index
+        # img_fn = osp.join(self.img_folder,
+        #                   'folder_{:010d}'.format(folder_idx),
+        #                   '{:010d}.jpg'.format(file_idx))
 
-        img_fn = osp.join(self.img_folder,
-                          'folder_{:010d}'.format(folder_idx),
-                          '{:010d}.jpg'.format(file_idx))
+        dset = self.dset[index].decode()
+        imgname = self.imgname[index].decode()
+        img_fn = osp.join(self.img_folder, dset, imgname)
         img = read_img(img_fn)
         keypoints2d = self.keypoints2d[index]
 

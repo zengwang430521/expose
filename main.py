@@ -28,7 +28,7 @@ def get_args_parser():
 
     parser.add_argument('--exp-cfg', type=str, dest='exp_cfg',
                         help='The configuration of the experiment')
-    parser.add_argument('--output-folder', dest='output_folder',
+    parser.add_argument('--output-dir', dest='output_dir',
                         default='demo_output', type=str,
                         help='The folder where the demo renderings will be' +
                         ' saved')
