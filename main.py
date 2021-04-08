@@ -71,7 +71,8 @@ def main(args, exp_cfg):
     model_without_ddp = model
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('number of params:', n_parameters)
-
+    # for n, p in model_without_ddp.named_parameters():
+    #     print(n)
     # dataset_train = build_dataset(image_set='train', args=args)
     # dataset_val = build_dataset(image_set='val', args=args)
     datasets = make_all_datasets(exp_cfg, split='train')
@@ -108,7 +109,7 @@ def main(args, exp_cfg):
     lr_scheduler = build_scheduler(optimizer, optim_cfg['scheduler'])
 
     if args.distributed:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)
+        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=False)
         model_without_ddp = model.module
 
     if args.pretrain:
