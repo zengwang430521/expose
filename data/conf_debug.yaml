@@ -124,7 +124,7 @@ datasets:
       - threedpw
       train:
       - curated_fits
-#      - spin
+      - spin
       val:
       - curated_fits
       - threedpw
