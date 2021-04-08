@@ -259,7 +259,8 @@ class HighResolutionNet(nn.Module):
 
         # self.stage4, pre_stage_channels = self._make_stage(
         #     self.stage4_cfg, num_channels, multi_scale_output=False)
-        print('remove unused stage4 from hrnet.')
+
+        # print('remove unused stage4 from hrnet.')
         _, pre_stage_channels = self._make_stage(
             self.stage4_cfg, num_channels, multi_scale_output=False)
 
