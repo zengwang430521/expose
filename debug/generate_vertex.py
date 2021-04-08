@@ -24,7 +24,6 @@ from threadpoolctl import threadpool_limits
 from tqdm import tqdm
 import datetime
 
-import open3d as o3d
 
 import time
 import argparse
@@ -50,9 +49,10 @@ from expose.optimizers import build_optimizer, build_scheduler
 rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
 resource.setrlimit(resource.RLIMIT_NOFILE, (rlimit[1], rlimit[1]))
 
-
-Vec3d = o3d.utility.Vector3dVector
-Vec3i = o3d.utility.Vector3iVector
+# import open3d as o3d
+#
+# Vec3d = o3d.utility.Vector3dVector
+# Vec3i = o3d.utility.Vector3iVector
 
 
 from typing import Iterable
