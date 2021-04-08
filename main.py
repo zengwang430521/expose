@@ -47,7 +47,8 @@ def get_args_parser():
     parser.add_argument('--resume', default='', help='resume from checkpoint')
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument('--epochs', default=50, type=int)
-
+    parser.add_argument('--device', default='cuda',
+                        help='device to use for training / testing')
     return parser
 
 
@@ -56,7 +57,8 @@ def main(args, exp_cfg):
     print("git:\n  {}\n".format(utils.get_sha()))
     print(args)
 
-    device = torch.device('cuda')
+    # device = torch.device('cuda')
+    device = torch.device(args.device)
 
     # fix the seed for reproducibility
     seed = args.seed + utils.get_rank()
