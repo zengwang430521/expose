@@ -24,7 +24,9 @@ from torch.utils.data import ConcatDataset
 
 # import warnings
 # warnings.filterwarnings("ignore", category=UserWarning)
-
+import resource
+rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
+resource.setrlimit(resource.RLIMIT_NOFILE, (rlimit[1], rlimit[1]))
 
 def get_args_parser():
     parser = argparse.ArgumentParser('EXPOSE train', add_help=False)
