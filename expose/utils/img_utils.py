@@ -23,8 +23,8 @@ from loguru import logger
 
 import cv2
 from .typing_utils import Array
-cv2.setNumThreads(0)
-cv2.ocl.setUseOpenCL(False)
+# cv2.setNumThreads(0)
+# cv2.ocl.setUseOpenCL(False)
 
 
 def read_img(img_fn: str, dtype=np.float32) -> Array:
