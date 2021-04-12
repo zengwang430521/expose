@@ -142,7 +142,7 @@ datasets:
       - threedpw
       train:
       - curated_fits
-#      - spin
+      - spin
 #      - h36m
       val:
       - curated_fits

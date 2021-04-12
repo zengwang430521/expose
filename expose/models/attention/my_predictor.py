@@ -148,12 +148,6 @@ class SimpleSMPLXHead(nn.Module):
         logger.info(f'Body model: {self.body_model}')
 
     def _build_loss(self, exp_cfg):
-        network_cfg = exp_cfg.get('network', {})
-        attention_net_cfg = network_cfg.get('attention', {})
-        body_model_cfg = exp_cfg.get('body_model', {})
-        body_use_face_contour = body_model_cfg.get('use_face_contour', True)
-        loss_cfg = exp_cfg.get('losses', {})
-
         self.mix_loss = MyMixLossModule(
             exp_cfg,
         )
