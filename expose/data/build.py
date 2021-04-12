@@ -140,6 +140,8 @@ def make_body_dataset(name, dataset_cfg, transforms,
         obj = datasets.OpenPose
     elif name == 'tracks':
         obj = datasets.OpenPoseTracks
+    elif name == 'h36m':
+        obj = datasets.H36M
     else:
         raise ValueError(f'Unknown dataset: {name}')
 

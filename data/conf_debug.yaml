@@ -118,13 +118,32 @@ datasets:
       return_vertices: true
       use_face_contour: true
       vertex_folder: data/SPINX/vertices
+
+
+    h36m:
+      binarization: true
+      body_thresh: 0.1
+      face_thresh: 0.4
+      hand_thresh: 0.2
+      img_folder: data/h36m/images
+      metrics: [ ]
+      min_hand_keypoints: 8
+      min_head_keypoints: 8
+      npz_file: data/h36m/h36m_train_new.npz
+      return_full_pose: false
+      return_params: true
+      return_shape: true
+      use_face_contour: true
+
+
     splits:
       test:
       - ehf
       - threedpw
       train:
       - curated_fits
-      - spin
+#      - spin
+#      - h36m
       val:
       - curated_fits
       - threedpw

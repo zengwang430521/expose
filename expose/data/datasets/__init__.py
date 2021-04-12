@@ -24,3 +24,4 @@ from .openpose import OpenPose, OpenPoseTracks
 from .freihand import FreiHand
 from .ffhq import FFHQ
 from .stirling import Stirling3D
+from .h36m import H36M

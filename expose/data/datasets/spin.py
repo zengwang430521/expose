@@ -202,6 +202,7 @@ class SPIN(dutils.Dataset):
         imgname = self.imgname[index].decode()
         img_fn = osp.join(self.img_folder, dset, imgname)
         img = read_img(img_fn)
+        # print('debug!!!!'); img = np.zeros([1000, 1000, 3])
         keypoints2d = self.keypoints2d[index]
 
         output_keypoints2d = np.zeros([127 + 17 * self.use_face_contour,

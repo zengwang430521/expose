@@ -173,6 +173,21 @@ _C.body.spinx.return_vertices = True
 _C.body.spinx.metrics = []
 
 
+_C.body.h36m = CN()
+_C.body.h36m.img_folder = 'data/h36m/images'
+_C.body.h36m.npz_file = 'data/h36m/images'
+_C.body.h36m.return_params = True
+_C.body.h36m.use_face_contour = False
+_C.body.h36m.binarization = True
+_C.body.h36m.body_thresh = 0.1
+_C.body.h36m.hand_thresh = 0.2
+_C.body.h36m.face_thresh = 0.4
+_C.body.h36m.min_hand_keypoints = 8
+_C.body.h36m.min_head_keypoints = 8
+_C.body.h36m.return_shape = False
+_C.body.h36m.return_full_pose = False
+_C.body.h36m.metrics = []
+
 _C.hand = CN()
 
 _C.hand.vertex_flip_correspondences = ''

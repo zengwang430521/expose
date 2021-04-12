@@ -21,6 +21,7 @@ from expose.models.smplx_net import SMPLXNet
 from expose.data.build import make_all_datasets, collate_batch
 from expose.optimizers import build_optimizer, build_scheduler
 from torch.utils.data import ConcatDataset
+from pathlib import Path
 
 # import warnings
 # warnings.filterwarnings("ignore", category=UserWarning)
@@ -54,6 +55,8 @@ def get_args_parser():
     parser.add_argument('--epochs', default=50, type=int)
     parser.add_argument('--device', default='cuda',
                         help='device to use for training / testing')
+    parser.add_argument('--save_freq', default=1, type=int)
+
     return parser
 
 
@@ -151,15 +154,18 @@ def main(args, exp_cfg):
             args.start_epoch = checkpoint['epoch'] + 1
 
     print("Start training")
+    output_dir = Path(args.output_dir)
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             sampler_train.set_epoch(epoch)
         train_stats = train_one_epoch(model, data_loader_train, optimizer, device, epoch)
+        # print('DEBUG!!!!!!!!!'); train_stats = {}
         lr_scheduler.step()
 
         if args.output_dir:
-            output_dir = args.output_dir
+            if not os.path.exists(args.output_dir):
+                os.makedirs(args.output_dir)
             checkpoint_paths = [output_dir / 'checkpoint.pth']
             # extra checkpoint before LR drop and every 1 epochs
             if (epoch + 1) % args.save_freq == 0:
