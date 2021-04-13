@@ -54,7 +54,8 @@ class FreiHand(dutils.Dataset):
                  transforms=None,
                  return_params=True,
                  return_vertices=True,
-                 use_face_contour=False,
+                 # use_face_contour=False,
+                 use_face_contour=True,
                  return_shape=False,
                  file_format='json',
                  **kwargs):
@@ -112,8 +113,7 @@ class FreiHand(dutils.Dataset):
         elapsed = time.perf_counter() - start
         logger.info(f'Loading parameters: {elapsed}')
 
-        mean_pose_path = osp.expandvars(
-            '$CLUSTER_HOME/SMPL_HF_Regressor_data/data/all_means.pkl')
+        mean_pose_path = osp.expandvars('data/all_means.pkl')
         mean_poses_dict = {}
         if osp.exists(mean_pose_path):
             logger.info('Loading mean pose from: {} ', mean_pose_path)
@@ -150,7 +150,9 @@ class FreiHand(dutils.Dataset):
 
         self.num_items = len(self.img_idxs)
 
-        self.intrinsics = intrinsics
+        # self.intrinsics = intrinsics
+        self.intrinsics = np.asarray(intrinsics, dtype=np.float32)
+
         if 'test' not in split:
             xyz = np.asarray(xyz, dtype=np.float32)
             param = np.asarray(param, dtype=np.float32).reshape(len(xyz), -1)

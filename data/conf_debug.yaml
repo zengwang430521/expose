@@ -119,7 +119,6 @@ datasets:
       use_face_contour: true
       vertex_folder: data/SPINX/vertices
 
-
     h36m:
       binarization: true
       body_thresh: 0.1
@@ -129,21 +128,20 @@ datasets:
       metrics: [ ]
       min_hand_keypoints: 8
       min_head_keypoints: 8
-      npz_file: data/h36m/h36m_train_new.npz
+      npz_file: data/h36m/h36m_train_smplx.npz
       return_full_pose: false
       return_params: true
       return_shape: true
       use_face_contour: true
-
 
     splits:
       test:
       - ehf
       - threedpw
       train:
-      - curated_fits
-      - spin
-#      - h36m
+#      - curated_fits
+#      - spin
+      - h36m
       val:
       - curated_fits
       - threedpw
@@ -199,12 +197,15 @@ datasets:
     batch_size: 64
     freihand:
       data_path: data/freihand/
-      file_format: npz
+#      file_format: npz
+      file_format: json
       metrics:
       - mpjpe
       - v2v
       return_params: true
-      return_vertices: true
+#      return_vertices: true
+      return_vertices: false
+
     num_workers:
       test: 2
       train: 8

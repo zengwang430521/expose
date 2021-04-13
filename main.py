@@ -88,7 +88,10 @@ def main(args, exp_cfg):
 
     print('start build dataset')
     datasets = make_all_datasets(exp_cfg, split='train')
-    dataset_train = ConcatDataset(datasets['body'])
+    # dataset_train = ConcatDataset(datasets['body'])
+    dataset_train = ConcatDataset(
+        datasets['body'] + datasets['hand'] + datasets['head'])
+
     print('finish build dataset')
 
     sample_weight = [child_dataset.sample_weight for child_dataset in dataset_train.datasets]

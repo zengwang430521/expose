@@ -88,6 +88,8 @@ def make_head_dataset(name, dataset_cfg, transforms,
 def make_hand_dataset(name, dataset_cfg, transforms,
                       num_betas=10, num_expression_coeffs=10,
                       **kwargs):
+    sample_weight = 1.0
+
     if name == 'ehf':
         obj = datasets.EHF
     elif name == 'curated_fits':
@@ -113,6 +115,8 @@ def make_hand_dataset(name, dataset_cfg, transforms,
                    **args)
 
     logger.info(f'Created dataset: {dset_obj.name()}')
+    dset_obj.sample_weight = sample_weight / len(dset_obj) * np.ones(len(dset_obj))
+
     return dset_obj
 
 
@@ -129,7 +133,7 @@ def make_body_dataset(name, dataset_cfg, transforms,
     elif name == 'threedpw':
         obj = datasets.ThreeDPW
     elif name == 'spin':
-        sample_weight = 2.0
+        sample_weight = 1.0
         obj = datasets.SPIN
     elif name == 'spinx':
         obj = datasets.SPINX
@@ -141,6 +145,7 @@ def make_body_dataset(name, dataset_cfg, transforms,
     elif name == 'tracks':
         obj = datasets.OpenPoseTracks
     elif name == 'h36m':
+        sample_weight = 1.0
         obj = datasets.H36M
     else:
         raise ValueError(f'Unknown dataset: {name}')
@@ -455,7 +460,7 @@ def make_all_datasets(exp_cfg, split='train', start_iter=0, **kwargs):
 
     body_dsets_cfg = dataset_cfg.get('body', {})
     body_dset_names = body_dsets_cfg.get('splits', {})[split]
-
+    if body_dset_names is None: body_dset_names = []
     body_transfs_cfg = body_dsets_cfg.get('transforms', {})
     body_transforms = build_transforms(body_transfs_cfg, is_train=is_train)
 

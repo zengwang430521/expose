@@ -612,8 +612,9 @@ class MyMixLossModule(nn.Module):
 
                 if t.has_field(target_key):
                     tmp = getattr(t.get_field(target_key), attr_name)
-                    target_params[param_key][idx] = tmp
-                    conf_params[param_key][idx] = 1.0
+                    if tmp is not None:
+                        target_params[param_key][idx] = tmp
+                        conf_params[param_key][idx] = 1.0
 
         # Stack all
         for key in keyp_confs:
