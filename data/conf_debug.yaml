@@ -139,8 +139,8 @@ datasets:
       - ehf
       - threedpw
       train:
-#      - curated_fits
-#      - spin
+      - curated_fits
+      - spin
       - h36m
       val:
       - curated_fits
