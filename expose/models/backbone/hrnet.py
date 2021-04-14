@@ -487,6 +487,9 @@ class HighResolutionNet(nn.Module):
         #  for tensor in concat_outputs],
         #  dim=1)
 
+        if hasattr(self, 'body_feature_key'):
+            output = output[self.body_feature_key]
+
         return output
 
     def init_weights(self):

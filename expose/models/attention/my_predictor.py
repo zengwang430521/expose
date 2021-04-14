@@ -166,6 +166,7 @@ class SimpleSMPLXHead(nn.Module):
         # Construct the feature extraction backbone
         backbone_cfg = smplx_net_cfg.get('backbone', {})
         self.backbone, feat_dims = build_backbone(backbone_cfg)
+        self.backbone.body_feature_key = smplx_net_cfg.get('feature_key', 'avg_pooling')
 
         self.append_params = smplx_net_cfg.get('append_params', True)
         self.num_stages = smplx_net_cfg.get('num_stages', 1)
@@ -375,39 +376,6 @@ class SimpleSMPLXHead(nn.Module):
                 parents_pose[:, idx], output_pose)
         return output_pose
 
-    @torch.no_grad()
-    def bboxes_to_mask(
-            self,
-            targets: List,
-            key: str,
-            est_center: Tensor, est_bbox_size: Tensor,
-            thresh: float = 0.0) -> Tensor:
-        ''' Converts bounding boxes to a binary mask '''
-        if thresh <= 0:
-            return torch.ones([len(targets), 1], dtype=torch.bool,
-                              device=est_center.device)
-
-        ious = torch.zeros(len(targets), dtype=est_center.dtype,
-                           device=est_center.device)
-        gt_idxs = []
-        gt_bboxes = []
-        for ii, t in enumerate(targets):
-            if not t.has_field(key):
-                continue
-            gt_idxs.append(ii)
-            bbox_field = t.get_field(key)
-            gt_bboxes.append(bbox_field.bbox)
-
-        if len(gt_bboxes) < 1:
-            return ious.unsqueeze(dim=-1).to(dtype=torch.bool)
-        est_bboxes = center_size_to_bbox(est_center, est_bbox_size)
-        gt_bboxes = torch.stack(gt_bboxes).to(dtype=est_bboxes.dtype)
-        gt_idxs = torch.tensor(
-            gt_idxs, dtype=torch.long, device=est_bboxes.device)
-        ious[gt_idxs] = bbox_iou(gt_bboxes, est_bboxes[gt_idxs])
-
-        return ious.ge(thresh).unsqueeze(dim=-1)
-
     def forward(self,
                 images: Tensor,
                 targets: List = None,
@@ -424,14 +392,20 @@ class SimpleSMPLXHead(nn.Module):
         device = images.device
         dtype = images.dtype
 
-        feat_dict = self.backbone(images)
-        body_features = feat_dict[self.body_feature_key]
+        # feat_dict = self.backbone(images)
+        # body_features = feat_dict[self.body_feature_key]
+        body_features = self.backbone(images)
         body_parameters, body_deltas = self.regressor(body_features)
 
+        # feat_dict = self.backbone(images)
+        # body_features = feat_dict[self.body_feature_key]
+        # body_parameters, body_deltas = self.regressor(body_features)
+
         losses = {}
-        toy_loss = sum(f.sum() for f in feat_dict.values()) * 0.0 + \
-                   sum(p.sum() for p in body_parameters) * 0.0 + \
-                   sum(d.sum() for d in body_deltas) * 0.0
+        toy_loss = sum(p.sum() for p in body_parameters) * 0.0 + \
+                   sum(d.sum() for d in body_deltas) * 0.0\
+                   # + sum(f.sum() for f in feat_dict.values()) * 0.0
+
         losses['toy_loss'] = toy_loss
 
         # A list of dicts for the parameters predicted at each stage. The key
