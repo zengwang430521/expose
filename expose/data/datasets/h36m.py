@@ -150,7 +150,7 @@ class H36M(dutils.Dataset):
         imgname = self.imgname[index].decode()
         img_fn = osp.join(self.img_folder, imgname)
         img = read_img(img_fn)
-        # print('debug!!!!!'); img = np.zeros([1000, 1000, 3])
+        # print('debug!!!!!'); img = np.zeros([1000, 1000, 3], dtype=np.float32)
         keypoints2d = self.keypoints2d[index]
 
         output_keypoints2d = np.zeros([127 + 17 * self.use_face_contour,
@@ -241,8 +241,7 @@ class H36M(dutils.Dataset):
                 img, target, dset_scale_factor=1.2, force_flip=force_flip)
         target.add_field('name', self.name())
 
-        dict_key = [f'spin/{self.dset[index].decode("utf-8")}',
-                    self.imgname[index].decode('utf-8'), index]
+        dict_key = ['h36m', self.imgname[index].decode('utf-8'), index]
         if hasattr(self, 'gender') and self.return_gender:
             gender = self.gender[index].decode('utf-8')
             if gender == 'F' or gender == 'M':
