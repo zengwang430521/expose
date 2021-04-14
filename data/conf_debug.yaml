@@ -140,8 +140,8 @@ datasets:
       - threedpw
       train:
       - curated_fits
-      - spin
-      - h36m
+#      - spin
+#      - h36m
       val:
       - curated_fits
       - threedpw
@@ -765,7 +765,7 @@ network:
       neck_pose: false
       shape: false
     detach_mean: false
-    freeze_body: true
+    freeze_body: false
     hand:
       append_params: true
       backbone:

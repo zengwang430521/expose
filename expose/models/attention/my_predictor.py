@@ -155,29 +155,8 @@ class SimpleSMPLXHead(nn.Module):
     def _build_sampler_idx(self, exp_cfg):
         network_cfg = exp_cfg.get('network', {})
         attention_net_cfg = network_cfg.get('attention', {})
-        smplx_net_cfg = attention_net_cfg.get('smplx', {})
         body_model_cfg = exp_cfg.get('body_model', {})
         body_use_face_contour = body_model_cfg.get('use_face_contour', True)
-
-        param_mean, param_dim, body_pose_mean, \
-        left_hand_pose_mean, right_hand_pose_mean, \
-        jaw_pose_mean = self._build_coefficinets(exp_cfg)
-
-        # Construct the feature extraction backbone
-        backbone_cfg = smplx_net_cfg.get('backbone', {})
-        self.backbone, feat_dims = build_backbone(backbone_cfg)
-        self.backbone.body_feature_key = smplx_net_cfg.get('feature_key', 'avg_pooling')
-
-        self.append_params = smplx_net_cfg.get('append_params', True)
-        self.num_stages = smplx_net_cfg.get('num_stages', 1)
-
-        self.body_feature_key = smplx_net_cfg.get('feature_key', 'avg_pooling')
-        feat_dim = feat_dims[self.body_feature_key]
-
-        # Build regressor
-        regressor_cfg = smplx_net_cfg.get('mlp', {})
-        regressor = MLP(feat_dim + self.append_params * param_dim, param_dim, **regressor_cfg)
-        self.regressor = IterativeRegression(regressor, param_mean, num_stages=self.num_stages)
 
         # build crop samplers for hand and head
         hand_crop_size = exp_cfg.get('datasets', {}).get('hand', {}).get('transforms', {}).get('crop_size', 256)
@@ -392,20 +371,18 @@ class SimpleSMPLXHead(nn.Module):
         device = images.device
         dtype = images.dtype
 
-        # feat_dict = self.backbone(images)
-        # body_features = feat_dict[self.body_feature_key]
-        body_features = self.backbone(images)
-        body_parameters, body_deltas = self.regressor(body_features)
-
-        # feat_dict = self.backbone(images)
-        # body_features = feat_dict[self.body_feature_key]
+        # body_features = self.backbone(images)
         # body_parameters, body_deltas = self.regressor(body_features)
+
+        feat_dict = self.backbone(images)
+        body_features = feat_dict[self.body_feature_key]
+        body_parameters, body_deltas = self.regressor(body_features)
 
         losses = {}
         toy_loss = sum(p.sum() for p in body_parameters) * 0.0 + \
                    sum(d.sum() for d in body_deltas) * 0.0 + \
-                   body_features.sum() * 0.0
-                   # + sum(f.sum() for f in feat_dict.values()) * 0.0
+                   sum(f.sum() for f in feat_dict.values()) * 0.0
+        # body_features.sum() * 0.0
 
         losses['toy_loss'] = toy_loss
 
