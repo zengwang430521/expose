@@ -167,7 +167,7 @@ def main(args, exp_cfg):
         lr_scheduler.step()
 
         if args.output_dir:
-            if not os.path.exists(args.output_dir):
+            if not os.path.exists(args.output_dir) and utils.is_main_process():
                 os.makedirs(args.output_dir)
             checkpoint_paths = [output_dir / 'checkpoint.pth']
             # extra checkpoint before LR drop and every 1 epochs
